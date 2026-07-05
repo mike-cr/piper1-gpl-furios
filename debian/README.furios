@@ -68,7 +68,7 @@ Override if needed:
 
 What the wrapper runs inside the container:
 
-    /furios-build/bin/furios-apt-setup
+    furios-apt-setup, streamed in from the host
     apt install -y build-essential devscripts dpkg-dev fakeroot lintian
     apt build-dep -y .
     ./script/furios-build-deb
@@ -82,7 +82,7 @@ Start an interactive FuriOS container from this repository:
 
 Then inside the container:
 
-    /furios-build/bin/furios-apt-setup
+    furios-apt-setup, streamed in from the host if using the wrapper
     apt install -y build-essential devscripts dpkg-dev fakeroot lintian
     apt build-dep -y .
     ./script/furios-build-deb --binary-only
