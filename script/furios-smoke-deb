@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -gt 1 ]]; then
+    echo "Usage: script/furios-smoke-deb [path-to-deb]" >&2
+    exit 1
+fi
+
+if ! command -v apt >/dev/null 2>&1; then
+    echo "This script must run inside the FuriOS build container." >&2
+    exit 1
+fi
+
+deb="${1:-}"
+if [[ -z "${deb}" ]]; then
+    package="$(dpkg-parsechangelog -SSource)"
+    version="$(dpkg-parsechangelog -SVersion)"
+    arch="$(dpkg --print-architecture)"
+    deb="../${package}_${version}_${arch}.deb"
+fi
+
+apt install -y "${deb}"
+piper --help >/dev/null
+python3 -c "import piper; import piper.espeakbridge; print('import ok')"
+python3 -c "from piper.phonemize_espeak import EspeakPhonemizer; p = EspeakPhonemizer(); print(p.phonemize('en-us', 'Hello world.'))"

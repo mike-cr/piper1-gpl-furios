@@ -1,0 +1,111 @@
+FuriOS packaging workflow
+=========================
+
+This branch packages Piper for FuriOS forky on arm64. Build in the FuriOS
+container, not directly on the Arch or Ubuntu host, so dependencies and Python
+ABI match the target device.
+
+Container assumptions
+---------------------
+
+The host has a rootless Podman image named:
+
+    localhost/furios-forky-arm64:latest
+
+The helper scripts mount the parent of this repository at /src and run from
+/src/piper1-gpl inside the container. Build outputs are written to the parent
+directory, so they appear beside the repository on the host.
+
+Enter the build container
+-------------------------
+
+From the host:
+
+    script/furios-shell
+
+If SELinux-style volume labeling causes trouble:
+
+    FURIOS_VOLUME_SUFFIX= script/furios-shell
+
+Install build dependencies
+--------------------------
+
+Inside the container, after creating or resetting the image:
+
+    script/furios-install-build-deps
+
+This installs debhelper, pybuild, CMake, Ninja, libespeak-ng-dev,
+python3-onnxruntime, python3-pathvalidate, lintian, and related tools.
+
+Build
+-----
+
+Inside the container:
+
+    script/furios-build-deb
+
+This creates ../piper-tts_1.4.2.orig.tar.gz from the v1.4.2 tag when needed,
+runs debian/rules clean, builds the source and binary packages, and runs
+lintian on the generated .changes file.
+
+For a quick binary-only test build:
+
+    script/furios-build-deb --binary-only
+
+To regenerate the orig tarball:
+
+    script/furios-build-deb --force-orig
+
+Verify
+------
+
+Inside the container:
+
+    script/furios-smoke-deb
+
+This installs the generated .deb and checks:
+
+* piper --help
+* import piper and piper.espeakbridge
+* phonemization through system espeak-ng-data
+
+The expected remaining lintian warning is:
+
+    W: piper-tts: no-manual-page [usr/bin/piper]
+
+Upstream v1.4.2 does not ship a man page. The package installs README.md and
+docs/CLI.md instead of carrying a generated downstream man page.
+
+Artifacts
+---------
+
+Full builds produce files beside the repository, for example:
+
+    ../piper-tts_1.4.2.orig.tar.gz
+    ../piper-tts_1.4.2-1furios1.dsc
+    ../piper-tts_1.4.2-1furios1.debian.tar.xz
+    ../piper-tts_1.4.2-1furios1_arm64.deb
+    ../piper-tts-dbgsym_1.4.2-1furios1_arm64.deb
+    ../piper-tts_1.4.2-1furios1_arm64.changes
+    ../piper-tts_1.4.2-1furios1_arm64.buildinfo
+
+Publish
+-------
+
+Example with reprepro:
+
+    reprepro -b /path/to/repo includedsc forky ../piper-tts_1.4.2-1furios1.dsc
+    reprepro -b /path/to/repo includedeb forky ../piper-tts_1.4.2-1furios1_arm64.deb
+    reprepro -b /path/to/repo includedeb forky ../piper-tts-dbgsym_1.4.2-1furios1_arm64.deb
+
+Implementation notes
+--------------------
+
+The Debian patch stack:
+
+* builds src/piper/espeakbridge.c against system libespeak-ng
+* uses the system espeak-ng-data path by default
+* avoids bundling upstream's generated espeak-ng-data directory
+
+The package is expected to run on FuriOS forky arm64 systems with the current
+FuriOS repositories enabled.

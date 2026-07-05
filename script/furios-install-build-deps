@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v apt >/dev/null 2>&1; then
+    echo "This script must run inside the FuriOS build container." >&2
+    exit 1
+fi
+
+apt update
+apt install -y \
+    build-essential \
+    ca-certificates \
+    cmake \
+    debhelper \
+    devscripts \
+    dh-python \
+    dpkg-dev \
+    fakeroot \
+    git \
+    libespeak-ng-dev \
+    lintian \
+    ninja-build \
+    pybuild-plugin-pyproject \
+    python3-dev \
+    python3-onnxruntime \
+    python3-pathvalidate \
+    python3-setuptools \
+    python3-skbuild \
+    python3-wheel \
+    quilt
