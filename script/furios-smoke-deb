@@ -16,7 +16,10 @@ if [[ -z "${deb}" ]]; then
     package="$(dpkg-parsechangelog -SSource)"
     version="$(dpkg-parsechangelog -SVersion)"
     arch="$(dpkg --print-architecture)"
-    deb="../${package}_${version}_${arch}.deb"
+    deb="build-artifacts/${package}_${version}_${arch}.deb"
+    if [[ ! -f "${deb}" ]]; then
+        deb="../${package}_${version}_${arch}.deb"
+    fi
 fi
 
 apt install -y "${deb}"

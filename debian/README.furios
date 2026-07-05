@@ -100,6 +100,7 @@ script/furios-build-deb:
 * runs fakeroot debian/rules clean
 * runs dpkg-buildpackage -us -uc
 * runs lintian on the generated .changes file when present
+* collects generated artifacts into build-artifacts/
 
 Useful options:
 
@@ -131,24 +132,25 @@ docs/CLI.md instead of carrying a generated downstream man page.
 Artifacts
 ---------
 
-Full builds produce files beside the repository, for example:
+Builds collect generated files into the ignored build-artifacts/ directory in
+the repository. For example:
 
-    ../piper-tts_1.4.2.orig.tar.gz
-    ../piper-tts_1.4.2-1furios1.dsc
-    ../piper-tts_1.4.2-1furios1.debian.tar.xz
-    ../piper-tts_1.4.2-1furios1_arm64.deb
-    ../piper-tts-dbgsym_1.4.2-1furios1_arm64.deb
-    ../piper-tts_1.4.2-1furios1_arm64.changes
-    ../piper-tts_1.4.2-1furios1_arm64.buildinfo
+    build-artifacts/piper-tts_1.4.2.orig.tar.gz
+    build-artifacts/piper-tts_1.4.2-1furios1.dsc
+    build-artifacts/piper-tts_1.4.2-1furios1.debian.tar.xz
+    build-artifacts/piper-tts_1.4.2-1furios1_arm64.deb
+    build-artifacts/piper-tts-dbgsym_1.4.2-1furios1_arm64.deb
+    build-artifacts/piper-tts_1.4.2-1furios1_arm64.changes
+    build-artifacts/piper-tts_1.4.2-1furios1_arm64.buildinfo
 
 Publish
 -------
 
 Example with reprepro:
 
-    reprepro -b /path/to/repo includedsc forky ../piper-tts_1.4.2-1furios1.dsc
-    reprepro -b /path/to/repo includedeb forky ../piper-tts_1.4.2-1furios1_arm64.deb
-    reprepro -b /path/to/repo includedeb forky ../piper-tts-dbgsym_1.4.2-1furios1_arm64.deb
+    reprepro -b /path/to/repo includedsc forky build-artifacts/piper-tts_1.4.2-1furios1.dsc
+    reprepro -b /path/to/repo includedeb forky build-artifacts/piper-tts_1.4.2-1furios1_arm64.deb
+    reprepro -b /path/to/repo includedeb forky build-artifacts/piper-tts-dbgsym_1.4.2-1furios1_arm64.deb
 
 Implementation notes
 --------------------

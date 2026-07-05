@@ -5,6 +5,7 @@ binary_only=0
 clean=1
 run_lintian=1
 force_orig=0
+artifact_dir="${FURIOS_ARTIFACT_DIR:-build-artifacts}"
 
 usage() {
     cat <<'EOF'
@@ -17,6 +18,7 @@ Options:
       --no-clean      Skip fakeroot debian/rules clean before building
       --no-lintian    Skip lintian after building
       --force-orig    Regenerate ../piper-tts_VERSION.orig.tar.gz
+                      Artifacts are collected into build-artifacts/
   -h, --help          Show this help
 EOF
 }
@@ -105,3 +107,23 @@ changes="../${package}_${debian_version}_${arch}.changes"
 if [[ "${run_lintian}" -eq 1 && -f "${changes}" ]]; then
     lintian "${changes}" || true
 fi
+
+mkdir -p "${artifact_dir}"
+shopt -s nullglob
+artifacts=(
+    "../${package}_${upstream_version}.orig.tar."*
+    "../${package}_${debian_version}.dsc"
+    "../${package}_${debian_version}.debian.tar."*
+    "../${package}_${debian_version}_${arch}.buildinfo"
+    "../${package}_${debian_version}_${arch}.changes"
+    "../${package}_${debian_version}_${arch}.deb"
+    "../${package}-dbgsym_${debian_version}_${arch}.deb"
+)
+
+for artifact in "${artifacts[@]}"; do
+    if [[ -e "${artifact}" ]]; then
+        mv -f "${artifact}" "${artifact_dir}/"
+    fi
+done
+
+echo "Artifacts written to ${artifact_dir}/"
