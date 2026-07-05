@@ -16,10 +16,15 @@ if [[ -z "${deb}" ]]; then
     package="$(dpkg-parsechangelog -SSource)"
     version="$(dpkg-parsechangelog -SVersion)"
     arch="$(dpkg --print-architecture)"
-    deb="build-artifacts/${package}_${version}_${arch}.deb"
+    deb="./build-artifacts/${package}_${version}_${arch}.deb"
     if [[ ! -f "${deb}" ]]; then
         deb="../${package}_${version}_${arch}.deb"
     fi
+fi
+
+if [[ ! -f "${deb}" ]]; then
+    echo "Package not found: ${deb}" >&2
+    exit 1
 fi
 
 apt install -y "${deb}"
