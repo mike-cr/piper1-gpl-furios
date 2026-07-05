@@ -28,6 +28,6 @@ if [[ ! -f "${deb}" ]]; then
 fi
 
 apt install -y "${deb}"
-piper --help >/dev/null
+piper-tts --help >/dev/null
 python3 -c "import piper; import piper.espeakbridge; print('import ok')"
 python3 -c "from piper.phonemize_espeak import EspeakPhonemizer; p = EspeakPhonemizer(); print(p.phonemize('en-us', 'Hello world.'))"

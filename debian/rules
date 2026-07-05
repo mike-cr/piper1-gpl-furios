@@ -9,6 +9,9 @@ export DEB_BUILD_MAINT_OPTIONS=hardening=+all
 
 execute_after_dh_auto_install:
 	rm -f debian/piper-tts/usr/COPYING
+	if [ -f debian/piper-tts/usr/bin/piper ]; then \
+		mv debian/piper-tts/usr/bin/piper debian/piper-tts/usr/bin/piper-tts; \
+	fi
 
 override_dh_auto_test:
 	# Upstream tests rely on bundled test voice/model data and are not run at package build time.

@@ -118,13 +118,13 @@ Inside the container after building:
 
 This installs the generated .deb and checks:
 
-* piper --help
+* piper-tts --help
 * import piper and piper.espeakbridge
 * phonemization through system espeak-ng-data
 
 The expected remaining lintian warning is:
 
-    W: piper-tts: no-manual-page [usr/bin/piper]
+    W: piper-tts: no-manual-page [usr/bin/piper-tts]
 
 Upstream v1.4.2 does not ship a man page. The package installs README.md and
 docs/CLI.md instead of carrying a generated downstream man page.
