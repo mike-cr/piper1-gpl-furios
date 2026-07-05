@@ -1,0 +1,3 @@
+.pybuild/
+_skbuild/
+piper_tts.egg-info/

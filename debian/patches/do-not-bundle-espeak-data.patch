@@ -1,0 +1,24 @@
+Description: Do not include bundled espeak-ng data
+ The Debian/FuriOS package uses system espeak-ng-data through libespeak-ng1.
+Author: mike-cr <32793870+mike-cr@users.noreply.github.com>
+Forwarded: not-needed
+Last-Update: 2026-07-05
+
+--- a/MANIFEST.in
++++ b/MANIFEST.in
+@@ -1,2 +1 @@
+ include COPYING
+-recursive-include src/piper/espeak-ng-data *
+--- a/setup.py
++++ b/setup.py
+@@ -7,9 +7,7 @@
+ MODULE_DIR = Path(__file__).parent / "src" / "piper"
+ PIPER_DATA_FILES = ["py.typed", "espeakbridge.pyi"]
+ ESPEAK_NG_DATA_DIR = MODULE_DIR / "espeak-ng-data"
+-ESPEAK_NG_DATA_FILES = [
+-    f.relative_to(MODULE_DIR) for f in ESPEAK_NG_DATA_DIR.rglob("*") if f.is_file()
+-]
++ESPEAK_NG_DATA_FILES = []
+ TASHKEEL_DATA_DIR = MODULE_DIR / "tashkeel"
+ TASHKEEL_DATA_FILES = [
+     (TASHKEEL_DATA_DIR / f_name).relative_to(MODULE_DIR)

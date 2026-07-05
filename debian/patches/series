@@ -1,0 +1,3 @@
+use-system-espeak-ng.patch
+use-system-espeak-data-path.patch
+do-not-bundle-espeak-data.patch

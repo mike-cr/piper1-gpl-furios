@@ -15,6 +15,15 @@ espeak-ng-data/
 
 _skbuild/
 *.egg-info/
+.pybuild/
+build-artifacts/
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/*.debhelper
+debian/files
+debian/*.substvars
+debian/piper-tts/
+debian/tmp/
 
 src/piper/train/vits/monotonic_align/core.c
 *.so

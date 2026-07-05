@@ -1,0 +1,41 @@
+Description: Use the system espeak-ng data directory by default
+ FuriOS installs espeak-ng-data below the multiarch library directory. Keep an
+ environment override for local testing and unusual installations.
+Author: mike-cr <32793870+mike-cr@users.noreply.github.com>
+Forwarded: not-needed
+Last-Update: 2026-07-05
+
+--- a/src/piper/phonemize_espeak.py
++++ b/src/piper/phonemize_espeak.py
+@@ -1,13 +1,29 @@
+ """Phonemization with espeak-ng."""
+ 
++import os
+ import re
++import sysconfig
+ import unicodedata
+ from pathlib import Path
+ from typing import Union
+ 
+ _DIR = Path(__file__).parent
+-ESPEAK_DATA_DIR = _DIR / "espeak-ng-data"
+ 
+ 
++def _default_espeak_data_dir() -> Path:
++    env_dir = os.environ.get("PIPER_ESPEAK_DATA_DIR")
++    if env_dir:
++        return Path(env_dir)
++
++    multiarch = sysconfig.get_config_var("MULTIARCH")
++    if multiarch:
++        return Path("/usr/lib") / multiarch / "espeak-ng-data"
++
++    return Path("/usr/share/espeak-ng-data")
++
++
++ESPEAK_DATA_DIR = _default_espeak_data_dir()
++
++
+ class EspeakPhonemizer:
+     """Phonemizer that uses espeak-ng."""
+ 

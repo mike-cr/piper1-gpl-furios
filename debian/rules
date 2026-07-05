@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=piper-tts
+export PYBUILD_SYSTEM=pyproject
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@ --buildsystem=pybuild
+
+execute_after_dh_auto_install:
+	rm -f debian/piper-tts/usr/COPYING
+
+override_dh_auto_test:
+	# Upstream tests rely on bundled test voice/model data and are not run at package build time.

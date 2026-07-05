@@ -1,0 +1,4 @@
+extend-diff-ignore = (^|/)build-artifacts($|/)
+extend-diff-ignore = (^|/)\.pybuild($|/)
+extend-diff-ignore = (^|/)_skbuild($|/)
+extend-diff-ignore = (^|/)piper_tts\.egg-info($|/)
