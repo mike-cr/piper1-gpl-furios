@@ -1,3 +1,10 @@
+piper-tts (1.4.2-1furios2) forky; urgency=medium
+
+  * Rename installed CLI command from piper to piper-tts to avoid a name
+    conflict with the Piper mouse configuration utility.
+
+ -- mike-cr <32793870+mike-cr@users.noreply.github.com>  Mon, 06 Jul 2026 02:19:04 +1200
+
 piper-tts (1.4.2-1furios1) forky; urgency=medium
 
   * Initial FuriOS package.
