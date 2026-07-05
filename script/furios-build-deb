@@ -48,11 +48,19 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-repo_dir="$(git rev-parse --show-toplevel)"
+if command -v git >/dev/null 2>&1 && git rev-parse --show-toplevel >/dev/null 2>&1; then
+    repo_dir="$(git rev-parse --show-toplevel)"
+elif [[ -f debian/control ]]; then
+    repo_dir="$(pwd -P)"
+else
+    echo "Run this from the package source tree." >&2
+    exit 1
+fi
+
 cd "${repo_dir}"
 
 if ! command -v dpkg-buildpackage >/dev/null 2>&1; then
-    echo "dpkg-buildpackage is missing. Run script/furios-install-build-deps inside the container." >&2
+    echo "dpkg-buildpackage is missing. Run script/furios-build-cached from the host or install build deps inside the container." >&2
     exit 1
 fi
 
@@ -64,6 +72,11 @@ orig="../${package}_${upstream_version}.orig.tar.gz"
 
 if [[ "${binary_only}" -eq 0 ]]; then
     if [[ "${force_orig}" -eq 1 || ! -f "${orig}" ]]; then
+        if ! command -v git >/dev/null 2>&1; then
+            echo "git is required to create ${orig}. Run script/furios-build-cached from the host or install build deps first." >&2
+            exit 1
+        fi
+
         tag="v${upstream_version}"
         if ! git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
             echo "Missing upstream tag ${tag}; cannot create ${orig}" >&2

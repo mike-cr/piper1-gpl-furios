@@ -1,9 +1,27 @@
-FuriOS packaging workflow
-=========================
+FuriOS packaging workflow for Piper
+===================================
 
-This branch packages Piper for FuriOS forky on arm64. Build in the FuriOS
+This branch packages Piper for FuriOS forky on arm64. Build in a FuriOS
 container, not directly on the Arch or Ubuntu host, so dependencies and Python
 ABI match the target device.
+
+Generic build tools
+-------------------
+
+Container creation, apt setup, and generic package builds live in the separate
+tooling repository:
+
+    https://github.com/mike-cr/furios-build
+
+Install those tools and make sure their bin directory is on PATH. This package
+repository keeps only Piper-specific helpers.
+
+Piper-specific helpers:
+
+* script/furios-build-deb
+* script/furios-smoke-deb
+* script/furios-build-cached
+* script/furios-build-and-smoke
 
 Container assumptions
 ---------------------
@@ -12,56 +30,90 @@ The host has a rootless Podman image named:
 
     localhost/furios-forky-arm64:latest
 
-The helper scripts mount the parent of this repository at /src and run from
-/src/piper1-gpl inside the container. Build outputs are written to the parent
-directory, so they appear beside the repository on the host.
+Create or recreate it with the generic tools:
 
-Enter the build container
--------------------------
+    furios-create-container --force
 
-From the host:
+Verify:
 
-    script/furios-shell
+    furios-shell dpkg --print-architecture
 
-If SELinux-style volume labeling causes trouble:
+Expected output:
 
-    FURIOS_VOLUME_SUFFIX= script/furios-shell
+    arm64
 
-Install build dependencies
---------------------------
+Cached builds
+-------------
 
-Inside the container, after creating or resetting the image:
+If apt-cacher-ng is running on the host and supports the HTTPS/// rewrite mode,
+use the Piper wrapper:
 
-    script/furios-install-build-deps
+    script/furios-build-cached --binary-only
 
-This installs debhelper, pybuild, CMake, Ninja, libespeak-ng-dev,
-python3-onnxruntime, python3-pathvalidate, lintian, and related tools.
+Build and run the smoke test in one container:
 
-Build
------
+    script/furios-build-and-smoke --binary-only
 
-Inside the container:
+For a full source and binary build:
 
-    script/furios-build-deb
+    script/furios-build-cached
 
-This creates ../piper-tts_1.4.2.orig.tar.gz from the v1.4.2 tag when needed,
-runs debian/rules clean, builds the source and binary packages, and runs
-lintian on the generated .changes file.
+The wrapper defaults to:
 
-For a quick binary-only test build:
+    FURIOS_APT_CACHE=http://host.containers.internal:3142
+
+Override if needed:
+
+    FURIOS_APT_CACHE=http://host.containers.internal:3142 script/furios-build-cached --binary-only
+
+What the wrapper runs inside the container:
+
+    /furios-build/bin/furios-apt-setup
+    apt install -y build-essential devscripts dpkg-dev fakeroot lintian
+    apt build-dep -y .
+    ./script/furios-build-deb
+
+Manual build
+------------
+
+Start an interactive FuriOS container from this repository:
+
+    furios-shell
+
+Then inside the container:
+
+    /furios-build/bin/furios-apt-setup
+    apt install -y build-essential devscripts dpkg-dev fakeroot lintian
+    apt build-dep -y .
+    ./script/furios-build-deb --binary-only
+
+For a full source and binary build:
+
+    ./script/furios-build-deb
+
+Build helper behavior
+---------------------
+
+script/furios-build-deb:
+
+* creates ../piper-tts_1.4.2.orig.tar.gz from the v1.4.2 tag when needed
+* runs fakeroot debian/rules clean
+* runs dpkg-buildpackage -us -uc
+* runs lintian on the generated .changes file when present
+
+Useful options:
 
     script/furios-build-deb --binary-only
-
-To regenerate the orig tarball:
-
     script/furios-build-deb --force-orig
+    script/furios-build-deb --no-clean
+    script/furios-build-deb --no-lintian
 
 Verify
 ------
 
-Inside the container:
+Inside the container after building:
 
-    script/furios-smoke-deb
+    ./script/furios-smoke-deb
 
 This installs the generated .deb and checks:
 
